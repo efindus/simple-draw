@@ -1,0 +1,89 @@
+body {
+	margin: 0;
+	padding: 10px;
+	box-sizing: border-box;
+	height: 100vh;
+	display: flex;
+	flex-direction: column;
+	user-select: none;
+}
+
+#main {
+	display: flex;
+	flex-grow: 1;
+	overflow: hidden;
+	column-gap: 10px;
+}
+
+#svg {
+	border: 2px solid;
+	width: 90%;
+}
+
+#text-space {
+	flex-grow: 1;
+	background-color: white;
+	font-family: monospace;
+	overflow-y: scroll;
+}
+
+#top-bar {
+	display: flex;
+	flex-direction: row;
+	margin-bottom: 10px;
+}
+
+#position-display {
+	font-size: 32px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+#toolbox {
+	font-size: 24px;
+	margin-left: 10px;
+	padding: 4px;
+	display: flex;
+	flex-direction: row;
+}
+
+.toolbox-item {
+	border-radius: 8px;
+	border-style: solid;
+	border-width: thin;
+	border-color: gray;
+	padding: 5px 10px;
+	margin-left: 10px;
+	cursor: pointer;
+}
+
+.toolbox-item.active, .toolbox-item:hover {
+	background-color: rgb(230, 230, 230);
+}
+
+.toolbox-item:active {
+	background-color: rgb(221, 221, 221);
+}
+
+.svg-grid {
+	fill: white;
+	stroke: gray;
+	stroke-width: 0.01;
+	shape-rendering: crispedges;
+}
+
+.svg-axis {
+	stroke: #3a3a3a;
+	stroke-width: 0.025;
+}
+
+.svg-point {
+	r: 0.06;
+}
+
+.svg-line {
+	stroke: black;
+	stroke-width: 0.04;
+	stroke-linecap: round;
+}
