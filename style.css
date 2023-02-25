@@ -17,14 +17,7 @@ body {
 
 #svg {
 	border: 2px solid;
-	width: 90%;
-}
-
-#text-space {
-	flex-grow: 1;
-	background-color: white;
-	font-family: monospace;
-	overflow-y: scroll;
+	width: 100%;
 }
 
 #top-bar {
