@@ -8,6 +8,7 @@ const hline = document.getElementById('hline');
 const textSpace = document.getElementById('text-space');
 const lineButton = document.getElementById('line-button');
 const pointButton = document.getElementById('point-button');
+const eraserButton = document.getElementById('eraser-button');
 const positionDisplay = document.getElementById('position-display');
 
 const d = {
@@ -78,6 +79,29 @@ const updateViewBox = () => {
 const svgOnResize = new ResizeObserver(updateViewBox);
 svgOnResize.observe(svg);
 
+const addPoint = (points, x, y, data) => {
+    if (!points[x])
+        points[x] = {};
+
+    points[x][y] = data;
+};
+
+const getPoint = (points, x, y) => {
+    let data = points[x] ?? null;
+    if (data)
+        data = data[y] ?? null;
+
+    return data;
+};
+
+const removePoint = (points, x, y) => {
+    if (points[x][y])
+        delete points[x][y];
+
+    if (points[x] && Object.keys(points[x]).length === 0)
+        delete points[x];
+};
+
 const processUpdate = (offsetX, offsetY) => {
     const posX = get('x', offsetX, true), posY = get('y', offsetY, true);
     positionDisplay.innerText = `${posX}; ${-posY}`;
@@ -85,25 +109,26 @@ const processUpdate = (offsetX, offsetY) => {
     if (posX === d.last.highlight.x && posY === d.last.highlight.y)
         return;
 
-    if (d.last.highlight.x !== null && d.objects.points[d.last.highlight.x][d.last.highlight.y]) {
-        d.objects.points[d.last.highlight.x][d.last.highlight.y].listElement.style.fontWeight = 'normal';
+    const lpointData = getPoint(d.objects.points, d.last.highlight.x, d.last.highlight.y);
+    if (d.last.highlight.x !== null && lpointData) {
+        lpointData.listElement.style.fontWeight = 'normal';
         d.last.highlight.x = null;
     }
-        
-    if (d.objects.points[posX] && d.objects.points[posX][posY]) {
+    
+    const pointData = getPoint(d.objects.points, posX, posY);
+    if (pointData) {
+        pointData.listElement.style.fontWeight = 'bold'
         d.last.highlight.x = posX, d.last.highlight.y = posY;
-        d.objects.points[d.last.highlight.x][d.last.highlight.y].listElement.style.fontWeight = 'bold'
     }
 };
 
 const togglePointAt = (pX, pY, byUser = false) => {
-    if (!(d.objects.points[pX] && d.objects.points[pX][pY])) {
-        if (!d.objects.points[pX])
-            d.objects.points[pX] = {};
-
+    const pointData = getPoint(d.objects.points, pX, pY);
+    if (!pointData) {
         const point = document.createElementNS('http://www.w3.org/2000/svg', 'circle'), listElem = document.createElement('div');
-        d.objects.points[pX][pY] = { element: point, listElement: listElem };
+        addPoint(d.objects.points, pX, pY, { element: point, listElement: listElem });
         point.classList.add('svg-point');
+        point.setAttribute('r', 0.06);
         point.setAttribute('cx', pX);
         point.setAttribute('cy', pY);
         svg.appendChild(point);
@@ -143,11 +168,9 @@ const togglePointAt = (pX, pY, byUser = false) => {
         if (d.last.highlight.x === pX && d.last.highlight.y === pY)
             d.last.highlight.x = null;
 
-        d.objects.points[pX][pY].element.remove();
-        d.objects.points[pX][pY].listElement.remove();
-        delete d.objects.points[pX][pY];
-        if (Object.keys(d.objects.points[pX]).length === 0)
-            delete d.objects.points[pX];
+        pointData.element.remove();
+        pointData.listElement.remove();
+        removePoint(d.objects.points, pX, pY);
     }
 };
 
@@ -177,6 +200,13 @@ const processLineAt = (pX, pY) => {
     }
 };
 
+const processEraserAt = (pX, pY) => {
+    const element = document.elementFromPoint(pX, pY);
+    const erasable = [ 'point', 'line' ].some(v => element.classList.contains(`svg-${v}`));
+    if (erasable)
+        console.log('erase!');
+};
+
 const endDraw = (cancel = true) => {
     if (cancel)
         d.current.element?.remove();
@@ -184,18 +214,30 @@ const endDraw = (cancel = true) => {
     d.current.element = null;
 };
 
+const selectButton = (element) => {
+    pointButton.classList.remove('active');
+    lineButton.classList.remove('active');
+    eraserButton.classList.remove('active');
+
+    element.classList.add('active');
+};
+
 pointButton.addEventListener('click', () => {
     d.current.brush = 'point';
     endDraw();
-    pointButton.classList.add('active');
-    lineButton.classList.remove('active');
+    selectButton(pointButton);
 });
 
 lineButton.addEventListener('click', () => {
     d.current.brush = 'line';
     endDraw();
-    lineButton.classList.add('active');
-    pointButton.classList.remove('active');
+    selectButton(lineButton);
+});
+
+eraserButton.addEventListener('click', () => {
+    d.current.brush = 'eraser';
+    endDraw();
+    selectButton(eraserButton);
 });
 
 svg.addEventListener('mousemove', (event) => {
@@ -239,6 +281,8 @@ document.addEventListener('mouseup', (event) => {
             togglePointAt(posX, posY, true);
         else if (d.current.brush === 'line')
             processLineAt(posX, posY);
+        else if (d.current.brush === 'eraser')
+            processEraserAt(event.clientX, event.clientY);
     }
 });
 

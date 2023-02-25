@@ -70,7 +70,6 @@ body {
 	fill: white;
 	stroke: gray;
 	stroke-width: 0.01;
-	shape-rendering: crispedges;
 }
 
 .svg-axis {
@@ -79,7 +78,7 @@ body {
 }
 
 .svg-point {
-	r: 0.06;
+	fill: black;
 }
 
 .svg-line {
