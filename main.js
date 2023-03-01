@@ -251,20 +251,17 @@ const removePoint = (points, x, y) => {
 
 const togglePointAt = (pX, pY, byUser = false) => {
     const pointData = getPoint(d.objects.points, pX, pY);
-    if (!pointData) {
+
+    if (!pointData)
         addPoint(d.objects.points, pX, pY, true);
-
-        if (byUser)
-            d.actionList.push({ action: 'add', at: { x: pX, y: pY } });
-    } else {
-        if (byUser)
-            d.actionList.push({ action: 'remove', at: { x: pX, y: pY } });
-
+    else
         removePoint(d.objects.points, pX, pY);
-    }
+
+    if (byUser)
+        d.actionList.push({ brush: 'point', at: { x: pX, y: pY } });
 };
 
-const drawLineAt = (pX, pY) => {
+const drawLineAt = (pX, pY, byUser = false) => {
     if (!d.drawing) {
         d.current.startPos = {
             x: pX,
@@ -291,7 +288,11 @@ const drawLineAt = (pX, pY) => {
             else
                 addPoint(a, e.x, e.y, true);
 
-            endDraw();
+            if (Object.keys(a).length === 0)
+                removePoint(d.objects.lines, s.x, s.y);
+
+            if (byUser)
+                d.actionList.push({ brush: 'line', at: { sX: s.x, sY: s.y, eX: e.x, eY: e.y } });
         }
 
         endDraw();
@@ -380,7 +381,7 @@ document.addEventListener('mouseup', (event) => {
         if (d.current.brush === 'point')
             togglePointAt(posX, posY, true);
         else if (d.current.brush === 'line')
-            drawLineAt(posX, posY);
+            drawLineAt(posX, posY, true);
         else if (d.current.brush === 'eraser')
             processEraserAt(event.clientX, event.clientY);
 
@@ -390,11 +391,17 @@ document.addEventListener('mouseup', (event) => {
 
 document.addEventListener('keydown', (event) => {
     if (event.ctrlKey && event.key === 'z') {
-        if (d.actionList.length) {
+        if (d.drawing) {
+            endDraw();
+        } else if (d.actionList.length) {
             const a = d.actionList[d.actionList.length - 1];
             d.actionList.pop();
-            if (a.action === 'add' || a.action === 'remove')
+            if (a.brush === 'point') {
                 togglePointAt(a.at.x, a.at.y);
+            } else if (a.brush === 'line') {
+                drawLineAt(a.at.sX, a.at.sY);
+                drawLineAt(a.at.eX, a.at.eY);
+            }
 
             updateCanvas();
         }
