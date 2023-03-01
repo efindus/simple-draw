@@ -117,7 +117,6 @@ const togglePointAt = (pX, pY, byUser = false) => {
             d.actionList.push({ action: 'add', at: { x: pX, y: pY } });
 
         pY = -pY;
-        listElem.innerHTML = `(${pX}; ${pY})`;
     } else {
         if (byUser)
             d.actionList.push({ action: 'remove', at: { x: pX, y: pY } });
@@ -157,7 +156,7 @@ const processEraserAt = (pX, pY) => {
     const element = document.elementFromPoint(pX, pY);
     const erasable = [ 'point', 'line' ].some(v => element.classList.contains(`svg-${v}`));
     if (erasable)
-        console.log('erase!');
+        element.remove();
 };
 
 const endDraw = (cancel = true) => {
@@ -228,7 +227,7 @@ svg.addEventListener('mousedown', (event) => {
 
 document.addEventListener('mouseup', (event) => {
     d.dragging = false;
-    if (Date.now() - d.last.clickTS <= 300) {
+    if (Date.now() - d.last.clickTS <= 200) {
         const posX = get('x', d.last.pos.x, true), posY = get('y', d.last.pos.y, true);
         if (d.current.brush === 'point')
             togglePointAt(posX, posY, true);
