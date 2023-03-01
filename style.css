@@ -15,9 +15,10 @@ body {
 	column-gap: 10px;
 }
 
-#svg {
+#canvas {
 	border: 2px solid;
 	width: 100%;
+	image-rendering: pixelated;
 }
 
 #top-bar {
@@ -57,25 +58,4 @@ body {
 
 .toolbox-item:active {
 	background-color: rgb(221, 221, 221);
-}
-
-.svg-grid {
-	fill: white;
-	stroke: gray;
-	stroke-width: 0.01;
-}
-
-.svg-axis {
-	stroke: #3a3a3a;
-	stroke-width: 0.025;
-}
-
-.svg-point {
-	fill: black;
-}
-
-.svg-line {
-	stroke: black;
-	stroke-width: 0.04;
-	stroke-linecap: round;
 }
