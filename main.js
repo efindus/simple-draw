@@ -60,6 +60,13 @@ const renderCanvas = () => {
     const width = canvas.clientWidth, height = canvas.clientHeight;
     const x = get('x'), y = get('y'), x2 = get('x', width), y2 = get('y', height);
     
+    // Optimization shortcut as you cannot see anything anyway
+    if (d.pos.scale >= 2) {
+        ctx.fillStyle = '#fdfdfd';
+        ctx.fillRect(0, 0, width, height);
+        return;
+    }
+
     // Clear canvas
     ctx.fillStyle = 'white';
     ctx.fillRect(0, 0, width, height);
